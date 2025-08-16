@@ -1,21 +1,34 @@
-const hre = require("hardhat");
+// scripts/deploy.js
+const { ethers } = require("hardhat");
+const fs = require("fs");
+const path = require("path");
 
 async function main() {
-  const Token = await hre.ethers.getContractFactory("MyToken");
-  const token = await Token.deploy();
-  await token.waitForDeployment();
+  const MyToken = await ethers.getContractFactory("MyToken");
+  const myToken = await MyToken.deploy();
+  await myToken.waitForDeployment();
 
-  console.log("MyToken deployed to:", await token.getAddress());
+  const address = await myToken.getAddress();
+  console.log("MyToken deployed to:", address);
 
-  // optional: mint some tokens to the deployer for quick testing
-  const [deployer] = await hre.ethers.getSigners();
-  const amount = hre.ethers.parseUnits("1000", 18);
-  const tx = await token.mint(deployer.address, amount);
-  await tx.wait();
-  console.log("Minted 1000 DIK to:", deployer.address);
+  // Save deployment info for frontend
+  const deploymentsDir = path.join(__dirname, "..", "frontend", "src", "deployments", "localhost");
+  fs.mkdirSync(deploymentsDir, { recursive: true });
+
+  const deploymentData = {
+    address,
+    abi: (await artifacts.readArtifact("MyToken")).abi,
+  };
+
+  fs.writeFileSync(
+    path.join(deploymentsDir, "MyToken.json"),
+    JSON.stringify(deploymentData, null, 2)
+  );
+
+  console.log("Deployment data saved to frontend/src/deployments/localhost/MyToken.json");
 }
 
-main().catch((e) => {
-  console.error(e);
+main().catch((error) => {
+  console.error(error);
   process.exitCode = 1;
 });

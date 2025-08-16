@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "hardhat": "^2.22.6"
+    "hardhat": "^2.22.6",
+    "hardhat-deploy": "^1.0.4"
   }
 }
